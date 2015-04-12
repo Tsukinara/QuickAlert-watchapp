@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "title/title.h"
 #include "button/button.h"
+#include "passcode/passcode.h"
+#include "error/error.h"
   
 #define PAUSE_LEN 1000
 #define BUFFER_LEN 30
@@ -153,10 +155,10 @@ static void s_display_error_msg(void *data) {
 }
 
 void main_render(Layer *layer, GContext *ctx) {
-  char *remaining;
+  int remaining;
   graphics_context_set_text_color(ctx, GColorBlack);
   if(!s_passcode_defined) {
-    graphics_draw_text(ctx, "Define a passcode using the companion app first", fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,60}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+    error_draw(ctx);
   } else switch (s_curr_state) {
       case 0:
         title_draw(ctx);
@@ -165,29 +167,21 @@ void main_render(Layer *layer, GContext *ctx) {
         button_draw(ctx);
         break;
       case 2:
-        graphics_draw_text(ctx, "Enter passcode", fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,60}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        remaining = malloc(BUFFER_LEN + 1);
-        snprintf(remaining, BUFFER_LEN, "Timer: %ds", (int)(((double)s_timer_curr)/1000.0) + 1);
-        graphics_draw_text(ctx, remaining, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,100}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        graphics_draw_text(ctx, s_passcode, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,0}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        graphics_draw_text(ctx, s_entry, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,20}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        remaining = (int)(((double)s_timer_curr)/1000.0) + 1;
+        passcode_draw(ctx, s_entry, &remaining, 0);
         break;
       case 3:
-        graphics_draw_text(ctx, "Alert canceled", fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,60}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        graphics_draw_text(ctx, "Alert canceled", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,60}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
         break;
       case 4:
-        graphics_draw_text(ctx, "Incorrect passcode. \nRe-enter passcode", fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,60}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        remaining = malloc(BUFFER_LEN + 1);
-        snprintf(remaining, BUFFER_LEN, "Timer: %ds", (int)(((double)s_timer_curr)/1000.0) + 1);
-        graphics_draw_text(ctx, remaining, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,100}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        graphics_draw_text(ctx, s_passcode, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,0}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-        graphics_draw_text(ctx, s_entry, fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,20}, .size = {144,25}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        remaining = (int)(((double)s_timer_curr)/1000.0) + 1;
+        passcode_draw(ctx, s_entry, &remaining, 1);
         break;
       case 5:
-        graphics_draw_text(ctx, "CALLING", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), (GRect) {.origin = {0,0}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        graphics_draw_text(ctx, "CALLING", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,60}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
         break;
       default:
-        graphics_draw_text(ctx, "undefined", fonts_get_system_font(FONT_KEY_GOTHIC_18), (GRect) {.origin = {0,0}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        graphics_draw_text(ctx, "400 Error:\n Bad Request", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,60}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
   }
 }
 
@@ -214,12 +208,12 @@ void main_start(Layer *layer) {
 }
 
 static void s_call_police(void *data) {
-  s_curr_state = 5;
-
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
   dict_write_uint8(iter, 42, 42);
   app_message_outbox_send();
+  
+  s_curr_state = 5;
 }
 
 static void s_reset_app(void *data) {

@@ -9,13 +9,39 @@
     "resources": {
         "media": [
             {
-                "file": "images/button_up.png",
-                "name": "BUTTON_UP",
+                "file": "images/warning.png",
+                "name": "WARNING",
                 "type": "png"
             },
             {
                 "file": "images/button_down.png",
                 "name": "BUTTON_DOWN",
+                "type": "png"
+            },
+            {
+                "file": "images/button_up.png",
+                "name": "BUTTON_UP",
+                "type": "png"
+            },
+            {
+                "file": "images/down.png",
+                "name": "DOWN",
+                "type": "png"
+            },
+            {
+                "file": "images/center.png",
+                "name": "CENTER",
+                "type": "png"
+            },
+            {
+                "file": "images/up.png",
+                "name": "UP",
+                "type": "png"
+            },
+            {
+                "file": "images/icon.png",
+                "menuIcon": true,
+                "name": "ICON",
                 "type": "png"
             }
         ]
