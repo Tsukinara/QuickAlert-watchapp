@@ -12,3 +12,7 @@ void call_draw(GContext* ctx) {
   graphics_draw_bitmap_in_rect(ctx, s_call, (GRect) {.origin = {34, 9}, .size = {75, 75}});
   graphics_draw_text(ctx, "Location data sent\n Calling for help", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,84}, .size = {144,92}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 }
+
+void call_free() {
+  if (s_call) { gbitmap_destroy(s_call); }
+}

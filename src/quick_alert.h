@@ -10,3 +10,4 @@ void back_multi_handler(ClickRecognizerRef recognizer, void *context);
 
 void main_init(void);
 void main_start(Layer *main_layer);
+void main_deinit(void);

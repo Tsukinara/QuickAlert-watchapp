@@ -42,3 +42,9 @@ void passcode_draw(GContext* ctx, char *passcode, int *timer, const int type) {
   free(buffer);
   graphics_draw_text(ctx, buffer, fonts_get_system_font(FONT_KEY_BITHAM_34_MEDIUM_NUMBERS), (GRect) {.origin = {0,114}, .size = {144,36}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 }
+
+void passcode_free() {
+  if (s_down) { gbitmap_destroy(s_down); }
+  if (s_up) { gbitmap_destroy(s_up); }
+  if (s_center) { gbitmap_destroy(s_center); }
+}

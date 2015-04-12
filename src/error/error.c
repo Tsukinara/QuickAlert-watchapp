@@ -12,3 +12,7 @@ void error_draw(GContext* ctx) {
   graphics_draw_bitmap_in_rect(ctx, s_warning, (GRect) {.origin = {43, 8}, .size = {58, 56}});
   graphics_draw_text(ctx, "Please create a passcode prior\nto using app", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,64}, .size = {144,92}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 }
+
+void error_free() {
+  if (s_warning) { gbitmap_destroy(s_warning); }
+}
