@@ -3,6 +3,7 @@
 #include "button/button.h"
 #include "passcode/passcode.h"
 #include "error/error.h"
+#include "call/call.h"
   
 #define PAUSE_LEN 1000
 #define BUFFER_LEN 30
@@ -64,25 +65,31 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 void main_init(void) {
   s_reset_app(NULL);
     
+  // initialize app message
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
-
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
   
+  // gather persistent settings for timer length and passcode
   if (persist_exists(TIMERLEN_PERSIST_KEY)) {
     s_timer_len = persist_read_int(TIMERLEN_PERSIST_KEY);
   } else {
     s_timer_len = 10*1000;
   }
-  
   if (persist_exists(PASSCODE_PERSIST_KEY)) {
     s_passcode_defined = true;
     persist_read_string(PASSCODE_PERSIST_KEY, s_passcode, PASSCODE_LEN + 1);
   } else {
     s_passcode_defined = false;
-  }  
+  }
+  
+  // send request for most recent data
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  dict_write_uint8(iter, 0, 42);
+  app_message_outbox_send();
 }
 
 void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -178,7 +185,7 @@ void main_render(Layer *layer, GContext *ctx) {
         passcode_draw(ctx, s_entry, &remaining, 1);
         break;
       case 5:
-        graphics_draw_text(ctx, "CALLING", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,60}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+        call_draw(ctx);
         break;
       default:
         graphics_draw_text(ctx, "400 Error:\n Bad Request", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), (GRect) {.origin = {0,60}, .size = {144,60}}, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);

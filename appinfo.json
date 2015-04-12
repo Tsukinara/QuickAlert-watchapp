@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/call.png",
+                "name": "CALL",
+                "type": "png"
+            },
+            {
                 "file": "images/warning.png",
                 "name": "WARNING",
                 "type": "png"
